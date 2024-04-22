@@ -1,43 +1,40 @@
 <?php
 namespace Ovos\Webpack;
 
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
-use Eloquent\Pathogen\Path;
-use Eloquent\Pathogen\Resolver\BasePathResolver;
+use Ovos\Dir;
 
 class Manifest
 {
-    const MANIFEST_FILENAME = 'manifest.json';
+    public const MANIFEST_FILENAME = 'manifest.json';
 
     /**
      * [manifest file dirname => [src file => target file]]
      * @var array[]
      */
-    protected static $manifests = [];
+    protected static array $manifests = [];
 
     /**
      * Resolve path to the file from manifest.json
      *
-     * @param string $path
-     * @param string $base base dir which should be prepended to $path
+     * @param string $path (src or href value)
+     * @param ?string $base base dir which should be prepended to $path
      * @param string $manifestFilename
      *
      * @return string
      */
-    public static function resolve($path, $base = null, $manifestFilename = self::MANIFEST_FILENAME)
+    public static function resolve(
+        string $path,
+        ?string $base = null,
+        string $manifestFilename = self::MANIFEST_FILENAME,
+    ): string
     {
-        $relativePath = Path::fromString($path);
-        $basePath = FileSystemPath::fromString($base ? $base : getcwd());
+        $relativeDir = dirname($path);
+        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . Dir::preProcess($relativeDir);
+        $manifest = self::getManifest($dir, $manifestFilename);
+        $filename = basename($path);
 
-        $resolver = new BasePathResolver;
-        $fullPath = $resolver->resolve($basePath, $relativePath);
-
-        $dirname = dirname($fullPath->string());
-        $manifest = self::getManifest($dirname, $manifestFilename);
-
-        $filename = $relativePath->name();
         if (isset($manifest[$filename])) {
-            $path = $relativePath->replaceName($manifest[$filename])->string();
+            $path = $relativeDir . '/' . $manifest[$filename];
         }
 
         return $path;
@@ -48,17 +45,23 @@ class Manifest
      *
      * @param string $dir
      * @param string $manifestFilename
+     *
      * @return array
      */
-    public static function getManifest($dir, $manifestFilename = MANIFEST_FILENAME)
+    public static function getManifest(
+        string $dir,
+        string $manifestFilename = self::MANIFEST_FILENAME,
+    ): array
     {
         $manifestPath = $dir . DIRECTORY_SEPARATOR . $manifestFilename;
-        // normalize slashes
-        $manifestPath = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $manifestPath);
         if (!isset(self::$manifests[$manifestPath])) {
             $manifest = [];
             if (file_exists($manifestPath)) {
-                $manifest = json_decode(file_get_contents($manifestPath), true);
+                $manifest = json_decode(
+                    file_get_contents($manifestPath),
+                        associative: true,
+                        flags: JSON_THROW_ON_ERROR,
+                    );
             }
 
             self::$manifests[$manifestPath] = $manifest;

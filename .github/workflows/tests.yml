@@ -1,0 +1,43 @@
+name: "Tests"
+
+on:
+  - pull_request
+  - push
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-version: ['8.1', '8.2', '8.3']
+
+    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }}
+    steps:
+      - name: Install SSH keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.OVOS_PHP_LIBRARY }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: none
+          #ini-values: display_errors=off, log_errors=on
+          extensions: :xdebug, curl, fileinfo, gd, gettext, gmp, intl, imap, ldap, mbstring, exif, mysqli, openssl, pdo_mysql, soap, sockets, sodium, sqlite3, pdo_sqlite, redis, yaml, apcu, opcache
+
+      - name: Install composer and dependencies
+        run: composer install --classmap-authoritative
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit tests
