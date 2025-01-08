@@ -1,8 +1,6 @@
 <?php
 namespace Ovos\Webpack;
 
-use Ovos\Dir;
-
 class Manifest
 {
     public const MANIFEST_FILENAME = 'manifest.json';
@@ -29,7 +27,7 @@ class Manifest
     ): string
     {
         $relativeDir = dirname($path);
-        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . Dir::preProcess($relativeDir);
+        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . self::preProcessPath($relativeDir);
         $manifest = self::getManifest($dir, $manifestFilename);
         $filename = basename($path);
 
@@ -68,5 +66,19 @@ class Manifest
         }
 
         return self::$manifests[$manifestPath];
+    }
+
+    /**
+     * Pre-processes a path or relative path (second param)
+     * Removes directory separator from the end and replaces all separators with consistent ones
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function preProcessPath(string $path): string
+    {
+        $path = str_replace(['/', '\\'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
+        return rtrim($path, DIRECTORY_SEPARATOR);
     }
 }
