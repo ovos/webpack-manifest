@@ -26,13 +26,13 @@ class Manifest
         string $manifestFilename = self::MANIFEST_FILENAME,
     ): string
     {
-        $relativeDir = dirname($path);
-        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . self::preProcessPath($relativeDir);
+        $relativePath = dirname($path);
+        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . self::preProcessPath($relativePath);
         $manifest = self::getManifest($dir, $manifestFilename);
         $filename = basename($path);
 
         if (isset($manifest[$filename])) {
-            $path = $relativeDir . '/' . $manifest[$filename];
+            $path = $relativePath . '/' . $manifest[$filename];
         }
 
         return $path;
