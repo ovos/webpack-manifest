@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
+
 namespace Ovos\Webpack;
 
 class Manifest
 {
-    public const MANIFEST_FILENAME = 'manifest.json';
+    public const string MANIFEST_FILENAME = 'manifest.json';
 
     /**
      * [manifest file dirname => [src file => target file]]
@@ -57,9 +59,9 @@ class Manifest
             if (file_exists($manifestPath)) {
                 $manifest = json_decode(
                     file_get_contents($manifestPath),
-                        associative: true,
-                        flags: JSON_THROW_ON_ERROR,
-                    );
+                    associative: true,
+                    flags: JSON_THROW_ON_ERROR,
+                );
             }
 
             self::$manifests[$manifestPath] = $manifest;

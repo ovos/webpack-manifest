@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-latest']
-        php-version: ['8.1', '8.2', '8.3']
+        php-version: ['8.3', '8.4']
 
     name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }}
     steps:
@@ -29,7 +29,6 @@ jobs:
           tools: composer:v2
           coverage: none
           #ini-values: display_errors=off, log_errors=on
-          extensions: :xdebug, curl, fileinfo, gd, gettext, gmp, intl, imap, ldap, mbstring, exif, mysqli, openssl, pdo_mysql, soap, sockets, sodium, sqlite3, pdo_sqlite, redis, yaml, apcu, opcache
 
       - name: Install composer and dependencies
         run: composer install --classmap-authoritative
