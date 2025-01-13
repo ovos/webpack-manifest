@@ -5,7 +5,7 @@ namespace Ovos\Webpack;
 
 class Manifest
 {
-    public const string MANIFEST_FILENAME = 'manifest.json';
+    public const MANIFEST_FILENAME = 'manifest.json';
 
     /**
      * [manifest file dirname => [src file => target file]]
