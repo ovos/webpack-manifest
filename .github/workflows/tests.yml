@@ -1,0 +1,37 @@
+name: "Tests"
+
+on:
+  - pull_request
+  - push
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        operating-system: ['ubuntu-latest']
+        php-version: ['8.1', '8.2', '8.3', '8.4']
+
+    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }}
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          coverage: none
+          #ini-values: display_errors=off, log_errors=on
+
+      - name: Install composer and dependencies
+        run: composer install --classmap-authoritative
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit tests

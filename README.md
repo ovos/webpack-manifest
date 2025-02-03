@@ -11,28 +11,3 @@ Via Composer
 ``` bash
 $ composer require ovos/webpack-manifest
 ```
-
-## Usage
-
-``` php
-$skeleton = new Ovos\Webpack();
-echo $skeleton->echoPhrase('Hello, League!');
-```
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-[ico-version]: https://img.shields.io/packagist/v/ovos/webpack-manifest.svg?style=flat-square
-[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/ovos/webpack-manifest/master.svg?style=flat-square
-[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/ovos/webpack-manifest.svg?style=flat-square
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/ovos/webpack-manifest.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/ovos/webpack-manifest.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/ovos/webpack-manifest
-[link-travis]: https://travis-ci.org/ovos/webpack-manifest
-[link-scrutinizer]: https://scrutinizer-ci.com/g/ovos/webpack-manifest/code-structure
-[link-code-quality]: https://scrutinizer-ci.com/g/ovos/webpack-manifest
-[link-downloads]: https://packagist.org/packages/ovos/webpack-manifest
-[link-author]: https://github.com/mh-ovos

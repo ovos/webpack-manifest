@@ -1,43 +1,40 @@
 <?php
-namespace Ovos\Webpack;
+declare(strict_types=1);
 
-use Eloquent\Pathogen\FileSystem\FileSystemPath;
-use Eloquent\Pathogen\Path;
-use Eloquent\Pathogen\Resolver\BasePathResolver;
+namespace Ovos\Webpack;
 
 class Manifest
 {
-    const MANIFEST_FILENAME = 'manifest.json';
+    public const MANIFEST_FILENAME = 'manifest.json';
 
     /**
      * [manifest file dirname => [src file => target file]]
      * @var array[]
      */
-    protected static $manifests = [];
+    protected static array $manifests = [];
 
     /**
      * Resolve path to the file from manifest.json
      *
-     * @param string $path
-     * @param string $base base dir which should be prepended to $path
+     * @param string $path (src or href value)
+     * @param ?string $base base dir which should be prepended to $path
      * @param string $manifestFilename
      *
      * @return string
      */
-    public static function resolve($path, $base = null, $manifestFilename = self::MANIFEST_FILENAME)
+    public static function resolve(
+        string $path,
+        ?string $base = null,
+        string $manifestFilename = self::MANIFEST_FILENAME,
+    ): string
     {
-        $relativePath = Path::fromString($path);
-        $basePath = FileSystemPath::fromString($base ? $base : getcwd());
+        $relativePath = dirname($path);
+        $dir = ($base ?? __DIR__) . DIRECTORY_SEPARATOR . self::preProcessPath($relativePath);
+        $manifest = self::getManifest($dir, $manifestFilename);
+        $filename = basename($path);
 
-        $resolver = new BasePathResolver;
-        $fullPath = $resolver->resolve($basePath, $relativePath);
-
-        $dirname = dirname($fullPath->string());
-        $manifest = self::getManifest($dirname, $manifestFilename);
-
-        $filename = $relativePath->name();
         if (isset($manifest[$filename])) {
-            $path = $relativePath->replaceName($manifest[$filename])->string();
+            $path = $relativePath . '/' . $manifest[$filename];
         }
 
         return $path;
@@ -48,22 +45,42 @@ class Manifest
      *
      * @param string $dir
      * @param string $manifestFilename
+     *
      * @return array
      */
-    public static function getManifest($dir, $manifestFilename = MANIFEST_FILENAME)
+    public static function getManifest(
+        string $dir,
+        string $manifestFilename = self::MANIFEST_FILENAME,
+    ): array
     {
         $manifestPath = $dir . DIRECTORY_SEPARATOR . $manifestFilename;
-        // normalize slashes
-        $manifestPath = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $manifestPath);
         if (!isset(self::$manifests[$manifestPath])) {
             $manifest = [];
             if (file_exists($manifestPath)) {
-                $manifest = json_decode(file_get_contents($manifestPath), true);
+                $manifest = json_decode(
+                    file_get_contents($manifestPath),
+                    associative: true,
+                    flags: JSON_THROW_ON_ERROR,
+                );
             }
 
             self::$manifests[$manifestPath] = $manifest;
         }
 
         return self::$manifests[$manifestPath];
+    }
+
+    /**
+     * Pre-processes a path or relative path (second param)
+     * Removes directory separator from the end and replaces all separators with consistent ones
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function preProcessPath(string $path): string
+    {
+        $path = str_replace(['/', '\\'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
+        return rtrim($path, DIRECTORY_SEPARATOR);
     }
 }
